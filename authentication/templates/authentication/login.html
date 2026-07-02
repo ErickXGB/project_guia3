@@ -1,0 +1,63 @@
+{% extends 'employees/base.html' %}
+
+{% block title %}Iniciar Sesión - Portal de Personal{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+        <div class="card p-4 shadow-lg border-0" style="border-radius: 20px;">
+            <div class="text-center mb-4">
+                <div class="d-inline-flex p-3 rounded-circle bg-primary bg-opacity-10 text-primary mb-3">
+                    <i class="fa-solid fa-lock-open fa-2x"></i>
+                </div>
+                <h3 class="fw-bold mb-1 text-primary">¡Bienvenido de nuevo!</h3>
+                <p class="text-muted small">Ingrese sus credenciales para acceder a la aplicación</p>
+            </div>
+            <hr class="mb-4">
+            
+            <form method="post" novalidate>
+                {% csrf_token %}
+                
+                {% if form.non_field_errors %}
+                <div class="alert alert-danger" role="alert">
+                    {% for error in form.non_field_errors %}
+                        <div class="small"><i class="fa-solid fa-triangle-exclamation me-2"></i>{{ error }}</div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                
+                {% for field in form %}
+                <div class="mb-3">
+                    <label for="{{ field.id_for_label }}" class="form-label fw-semibold small">{{ field.label }}</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-end-0 text-muted">
+                            {% if field.name == 'username' %}
+                                <i class="fa-solid fa-user"></i>
+                            {% elif field.name == 'password' %}
+                                <i class="fa-solid fa-key"></i>
+                            {% endif %}
+                        </span>
+                        {{ field }}
+                    </div>
+                    {% for error in field.errors %}
+                        <div class="text-danger small mt-1"><i class="fa-solid fa-triangle-exclamation me-1"></i>{{ error }}</div>
+                    {% endfor %}
+                </div>
+                {% endfor %}
+                
+                <div class="d-grid mt-4">
+                    <button type="submit" class="btn btn-premium btn-lg">
+                        <i class="fa-solid fa-right-to-bracket me-2"></i>Iniciar Sesión
+                    </button>
+                </div>
+            </form>
+            
+            <div class="text-center mt-4">
+                <p class="text-muted small mb-0">¿No tiene una cuenta? 
+                    <a href="{% url 'signup' %}" class="text-decoration-none fw-bold text-primary">Regístrese aquí</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

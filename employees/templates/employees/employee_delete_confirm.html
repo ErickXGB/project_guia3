@@ -1,0 +1,37 @@
+{% extends 'employees/base.html' %}
+
+{% block title %}Confirmar Eliminación de Empleado - Portal de Personal{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card border-0 shadow-lg p-4" style="border-radius: 20px;">
+            <div class="text-center mb-4">
+                <div class="d-inline-flex p-3 rounded-circle bg-danger bg-opacity-10 text-danger mb-3">
+                    <i class="fa-solid fa-user-minus fa-3x"></i>
+                </div>
+                <h3 class="fw-bold text-danger">¿Confirmar Eliminación?</h3>
+                <p class="text-muted">¿Está seguro de que desea retirar de la nómina a este empleado?</p>
+            </div>
+            
+            <div class="card bg-light border-0 p-3 mb-4 text-center">
+                <p class="mb-1 text-muted small uppercase fw-semibold">Empleado a eliminar</p>
+                <h4 class="fw-bold text-dark mb-0">{{ employee.first_name }} {{ employee.last_name }}</h4>
+                <p class="text-primary small mb-0"><i class="fa-solid fa-briefcase me-1"></i>{{ employee.position.name }}</p>
+            </div>
+
+            <form method="post">
+                {% csrf_token %}
+                <div class="d-flex justify-content-between">
+                    <a href="{% url 'employee_list' %}" class="btn btn-outline-secondary px-4">
+                        <i class="fa-solid fa-arrow-left me-2"></i>Cancelar
+                    </a>
+                    <button type="submit" class="btn btn-danger px-4">
+                        <i class="fa-solid fa-trash-can me-2"></i>Confirmar Eliminación
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

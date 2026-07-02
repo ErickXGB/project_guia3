@@ -1,0 +1,58 @@
+{% extends 'employees/base.html' %}
+
+{% block title %}Detalle del Cargo - Portal de Personal{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card border-0 shadow-lg p-4" style="border-radius: 20px;">
+            <div class="d-flex align-items-center mb-4">
+                <div class="p-3 rounded-circle bg-primary bg-opacity-10 text-primary me-3">
+                    <i class="fa-solid fa-briefcase fa-2x"></i>
+                </div>
+                <div>
+                    <h3 class="fw-bold mb-0 text-primary">Detalle del Cargo</h3>
+                    <p class="text-muted mb-0">Información detallada del rol organizacional</p>
+                </div>
+            </div>
+            <hr class="mb-4">
+
+            <div class="mb-4">
+                <label class="text-muted small fw-bold text-uppercase">Nombre del Cargo</label>
+                <h4 class="fw-bold text-dark">{{ position.name }}</h4>
+            </div>
+
+            <div class="mb-4">
+                <label class="text-muted small fw-bold text-uppercase">Descripción</label>
+                <div class="p-3 bg-light rounded-3 text-muted">
+                    {% if position.description %}
+                        {{ position.description }}
+                    {% else %}
+                        <span class="text-italic">Sin descripción registrada</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <label class="text-muted small fw-bold text-uppercase">Límite de Salario Autorizado</label>
+                <div>
+                    {% if position.max_salary %}
+                        <h4 class="fw-bold text-success">${{ position.max_salary }}</h4>
+                    {% else %}
+                        <span class="badge bg-secondary bg-opacity-15 text-secondary px-3 py-2 fs-6">Sin límite definido</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-between mt-5">
+                <a href="{% url 'position_list' %}" class="btn btn-outline-secondary px-4">
+                    <i class="fa-solid fa-arrow-left me-2"></i>Volver al Listado
+                </a>
+                <a href="{% url 'position_edit' position.pk %}" class="btn btn-premium px-4">
+                    <i class="fa-solid fa-pen-to-square me-2"></i>Editar Cargo
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

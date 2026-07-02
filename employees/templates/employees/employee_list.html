@@ -1,0 +1,157 @@
+{% extends 'employees/base.html' %}
+
+{% block title %}Empleados - Portal de Personal{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-0">Gestión de Empleados</h2>
+        <p class="text-muted mb-0">Administre la información de los empleados de la organización</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="{% url 'employee_report_pdf' %}" class="btn btn-outline-danger">
+            <i class="fa-solid fa-file-pdf me-2"></i>PDF
+        </a>
+        <a href="{% url 'employee_report_excel' %}" class="btn btn-outline-success">
+            <i class="fa-solid fa-file-excel me-2"></i>Excel
+        </a>
+        <a href="{% url 'employee_create' %}" class="btn btn-premium">
+            <i class="fa-solid fa-user-plus me-2"></i>Nuevo Empleado
+        </a>
+    </div>
+</div>
+
+<div class="card p-4">
+    <!-- Filtro/Buscador Sutil -->
+    <form method="get" class="row g-2 justify-content-end mb-3 align-items-center">
+        <div class="col-auto">
+            <span class="text-muted small"><i class="fa-solid fa-filter me-1"></i> Filtrar por:</span>
+        </div>
+        <div class="col-auto">
+            <select name="field" class="form-select form-select-sm" style="border-radius: 8px;">
+                <option value="all" {% if request.GET.field == 'all' or not request.GET.field %}selected{% endif %}>Todos los campos</option>
+                <option value="first_name" {% if request.GET.field == 'first_name' %}selected{% endif %}>Nombre</option>
+                <option value="last_name" {% if request.GET.field == 'last_name' %}selected{% endif %}>Apellido</option>
+                <option value="position" {% if request.GET.field == 'position' %}selected{% endif %}>Cargo</option>
+                <option value="status" {% if request.GET.field == 'status' %}selected{% endif %}>Estado (Activo/Inactivo)</option>
+            </select>
+        </div>
+        <div class="col-auto">
+            <input type="text" name="q" value="{{ request.GET.q|default:'' }}" class="form-control form-control-sm" placeholder="Buscar..." style="border-radius: 8px; width: 200px;">
+        </div>
+        <div class="col-auto">
+            <button type="submit" class="btn btn-sm btn-primary px-3" style="border-radius: 8px;">
+                <i class="fa-solid fa-magnifying-glass"></i>
+            </button>
+            {% if request.GET.q %}
+                <a href="{% url 'employee_list' %}" class="btn btn-sm btn-light px-3" style="border-radius: 8px; border: 1px solid #ddd;">Limpiar</a>
+            {% endif %}
+        </div>
+    </form>
+
+    <div class="table-responsive">
+        <table class="table align-middle table-hover mb-0">
+            <thead class="table-dark">
+                <tr>
+                    <th scope="col">Nombres</th>
+                    <th scope="col">Apellidos</th>
+                    <th scope="col">Correo</th>
+                    <th scope="col">Sueldo</th>
+                    <th scope="col">Fecha de Ingreso</th>
+                    <th scope="col">Cargo</th>
+                    <th scope="col">Estado</th>
+                    <th scope="col" class="text-end">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for employee in employees %}
+                <tr>
+                    <td class="fw-semibold">{{ employee.first_name }}</td>
+                    <td class="fw-semibold">{{ employee.last_name }}</td>
+                    <td>{{ employee.email }}</td>
+                    <td class="text-success fw-bold">${{ employee.salary }}</td>
+                    <td>{{ employee.hire_date|date:"d/m/Y" }}</td>
+                    <td>
+                        <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 fw-semibold">
+                            <i class="fa-solid fa-briefcase me-1"></i>{{ employee.position.name }}
+                        </span>
+                    </td>
+                    <td>
+                        {% if employee.is_active %}
+                            <span class="badge bg-success bg-opacity-10 text-success px-2.5 py-1.5 fw-semibold" style="font-size: 0.8rem;">
+                                <i class="fa-solid fa-circle-check me-1"></i>Activo
+                            </span>
+                        {% else %}
+                            <span class="badge bg-danger bg-opacity-10 text-danger px-2.5 py-1.5 fw-semibold" style="font-size: 0.8rem;">
+                                <i class="fa-solid fa-circle-xmark me-1"></i>Inactivo
+                            </span>
+                        {% endif %}
+                    </td>
+                    <td class="text-end">
+                        <div class="btn-group" role="group">
+                            <a href="{% url 'employee_detail' employee.pk %}" class="btn btn-sm btn-outline-info me-2" title="Ver">
+                                <i class="fa-solid fa-eye"></i> Ver
+                            </a>
+                            <a href="{% url 'employee_edit' employee.pk %}" class="btn btn-sm btn-outline-warning me-2" title="Editar">
+                                <i class="fa-solid fa-pen-to-square"></i> Editar
+                            </a>
+                            <a href="{% url 'employee_delete' employee.pk %}" class="btn btn-sm btn-outline-danger" title="Eliminar">
+                                <i class="fa-solid fa-trash"></i> Eliminar
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="8" class="text-center py-5 text-muted">
+                        <i class="fa-solid fa-user-slash fa-3x mb-3 text-secondary"></i>
+                        <p class="mb-0">No se encontraron empleados registrados.</p>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Paginación -->
+    {% if page_obj.has_other_pages %}
+    <nav aria-label="Navegación de páginas" class="mt-4">
+        <ul class="pagination justify-content-center mb-0">
+            {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link shadow-none" href="?page={{ page_obj.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.field %}&field={{ request.GET.field }}{% endif %}" aria-label="Anterior">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link">&laquo;</span>
+                </li>
+            {% endif %}
+
+            {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                    <li class="page-item active"><span class="page-link bg-primary border-primary">{{ num }}</span></li>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                    <li class="page-item">
+                        <a class="page-link shadow-none" href="?page={{ num }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.field %}&field={{ request.GET.field }}{% endif %}">{{ num }}</a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link shadow-none" href="?page={{ page_obj.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.field %}&field={{ request.GET.field }}{% endif %}" aria-label="Siguiente">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link">&raquo;</span>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+{% endblock %}

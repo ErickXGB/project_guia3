@@ -1,0 +1,42 @@
+{% extends 'employees/base.html' %}
+
+{% block title %}{{ title }} - Portal de Personal{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card p-4">
+            <h3 class="fw-bold mb-3 text-center text-primary">
+                <i class="fa-solid fa-briefcase me-2"></i>{{ title }}
+            </h3>
+            <hr class="mb-4">
+            
+            <form method="post" novalidate>
+                {% csrf_token %}
+                
+                {% for field in form %}
+                <div class="mb-3">
+                    <label for="{{ field.id_for_label }}" class="form-label fw-medium">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.help_text %}
+                        <div class="form-text">{{ field.help_text }}</div>
+                    {% endif %}
+                    {% for error in field.errors %}
+                        <div class="text-danger small mt-1"><i class="fa-solid fa-triangle-exclamation me-1"></i>{{ error }}</div>
+                    {% endfor %}
+                </div>
+                {% endfor %}
+                
+                <div class="d-flex justify-content-between mt-4">
+                    <a href="{% url 'position_list' %}" class="btn btn-outline-secondary px-4">
+                        <i class="fa-solid fa-arrow-left me-2"></i>Cancelar
+                    </a>
+                    <button type="submit" class="btn btn-premium px-4">
+                        <i class="fa-solid fa-floppy-disk me-2"></i>Guardar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

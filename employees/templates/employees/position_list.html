@@ -1,0 +1,145 @@
+{% extends 'employees/base.html' %}
+
+{% block title %}Cargos - Portal de Personal{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-0">Gestión de Cargos</h2>
+        <p class="text-muted mb-0">Administre los roles y cargos disponibles en la organización</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="{% url 'position_report_pdf' %}" class="btn btn-outline-danger">
+            <i class="fa-solid fa-file-pdf me-2"></i>PDF
+        </a>
+        <a href="{% url 'position_report_excel' %}" class="btn btn-outline-success">
+            <i class="fa-solid fa-file-excel me-2"></i>Excel
+        </a>
+        <a href="{% url 'position_create' %}" class="btn btn-premium">
+            <i class="fa-solid fa-plus me-2"></i>Nuevo Cargo
+        </a>
+    </div>
+</div>
+
+<div class="card p-4">
+    <!-- Filtro/Buscador Sutil -->
+    <form method="get" class="row g-2 justify-content-end mb-3 align-items-center">
+        <div class="col-auto">
+            <span class="text-muted small"><i class="fa-solid fa-filter me-1"></i> Filtrar por:</span>
+        </div>
+        <div class="col-auto">
+            <select name="field" class="form-select form-select-sm" style="border-radius: 8px;">
+                <option value="all" {% if request.GET.field == 'all' or not request.GET.field %}selected{% endif %}>Todos los campos</option>
+                <option value="name" {% if request.GET.field == 'name' %}selected{% endif %}>Nombre del cargo</option>
+                <option value="description" {% if request.GET.field == 'description' %}selected{% endif %}>Descripción</option>
+            </select>
+        </div>
+        <div class="col-auto">
+            <input type="text" name="q" value="{{ request.GET.q|default:'' }}" class="form-control form-control-sm" placeholder="Buscar..." style="border-radius: 8px; width: 200px;">
+        </div>
+        <div class="col-auto">
+            <button type="submit" class="btn btn-sm btn-primary px-3" style="border-radius: 8px;">
+                <i class="fa-solid fa-magnifying-glass"></i>
+            </button>
+            {% if request.GET.q %}
+                <a href="{% url 'position_list' %}" class="btn btn-sm btn-light px-3" style="border-radius: 8px; border: 1px solid #ddd;">Limpiar</a>
+            {% endif %}
+        </div>
+    </form>
+
+    <div class="table-responsive">
+        <table class="table align-middle table-hover mb-0">
+            <thead class="table-dark">
+                <tr>
+                    <th scope="col" style="width: 25%">Nombre</th>
+                    <th scope="col" style="width: 40%">Descripción</th>
+                    <th scope="col" style="width: 15%">Salario Máximo</th>
+                    <th scope="col" style="width: 20%" class="text-end">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for position in positions %}
+                <tr>
+                    <td class="fw-semibold text-primary">{{ position.name }}</td>
+                    <td class="text-muted">
+                        {% if position.description %}
+                            {{ position.description }}
+                        {% else %}
+                            <span class="text-italic text-opacity-50 text-secondary">Sin descripción</span>
+                        {% endif %}
+                    </td>
+                    <td class="fw-semibold text-success">
+                        {% if position.max_salary %}
+                            ${{ position.max_salary }}
+                        {% else %}
+                            <span class="badge bg-secondary bg-opacity-10 text-secondary">Sin límite</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-end">
+                        <div class="btn-group" role="group">
+                            <a href="{% url 'position_detail' position.pk %}" class="btn btn-sm btn-outline-info me-2" title="Ver">
+                                <i class="fa-solid fa-eye"></i> Ver
+                            </a>
+                            <a href="{% url 'position_edit' position.pk %}" class="btn btn-sm btn-outline-warning me-2" title="Editar">
+                                <i class="fa-solid fa-pen-to-square"></i> Editar
+                            </a>
+                            <a href="{% url 'position_delete' position.pk %}" class="btn btn-sm btn-outline-danger" title="Eliminar">
+                                <i class="fa-solid fa-trash"></i> Eliminar
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="text-center py-5 text-muted">
+                        <i class="fa-solid fa-folder-open fa-3x mb-3 text-secondary"></i>
+                        <p class="mb-0">No se encontraron cargos registrados.</p>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Paginación -->
+    {% if page_obj.has_other_pages %}
+    <nav aria-label="Navegación de páginas" class="mt-4">
+        <ul class="pagination justify-content-center mb-0">
+            {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link shadow-none" href="?page={{ page_obj.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.field %}&field={{ request.GET.field }}{% endif %}" aria-label="Anterior">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link">&laquo;</span>
+                </li>
+            {% endif %}
+
+            {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                    <li class="page-item active"><span class="page-link bg-primary border-primary">{{ num }}</span></li>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                    <li class="page-item">
+                        <a class="page-link shadow-none" href="?page={{ num }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.field %}&field={{ request.GET.field }}{% endif %}">{{ num }}</a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link shadow-none" href="?page={{ page_obj.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.field %}&field={{ request.GET.field }}{% endif %}" aria-label="Siguiente">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link">&raquo;</span>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+{% endblock %}
