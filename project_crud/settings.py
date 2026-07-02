@@ -15,7 +15,7 @@ import os
 import dj_database_url 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent_
+BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 # Quick-start development settings - unsuitable for production
@@ -27,7 +27,10 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-+uyjyr5we-$dz4j-532_#*=)f8
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = 'DEBUG' not in os.environ
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
+if RENDER_EXTERNAL_HOSTNAME:
+    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
 
 
 # Application definition
